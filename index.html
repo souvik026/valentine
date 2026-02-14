@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Will You Be My Valentine? 💕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet"/>
+  <style>
+    /* ─── RESET & BASE ─────────────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    :root {
+      --rose:       #e8295a;
+      --blush:      #f7c5d0;
+      --petal:      #fde8ef;
+      --deep:       #8b1a3a;
+      --cream:      #fff6f8;
+      --gold:       #c9875a;
+      --text-dark:  #3a1020;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      font-family: 'Lato', sans-serif;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ─── CUSTOM CURSOR ────────────────────────────────── */
+    body { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ctext y='20' font-size='20'%3E🌸%3C/text%3E%3C/svg%3E"), auto; }
+
+    /* ─── MUSIC BUTTON ─────────────────────────────────── */
+    #music-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      background: rgba(255,255,255,0.85);
+      border: 2px solid var(--blush);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(232,41,90,.2);
+      backdrop-filter: blur(6px);
+      transition: transform .2s, box-shadow .2s;
+    }
+    #music-btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 6px 20px rgba(232,41,90,.35);
+    }
+
+    /* ─── PETAL CANVAS (behind everything) ────────────── */
+    #petal-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── PAGES ────────────────────────────────────────── */
+    .page {
+      position: relative;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+
+    /* ══════════════════════════════════════════════════════
+       LANDING PAGE
+    ══════════════════════════════════════════════════════ */
+    #page-landing {
+      background: radial-gradient(ellipse 80% 80% at 50% 0%, #ffd6e4 0%, var(--cream) 70%);
+      padding: 40px 20px 60px;
+      text-align: center;
+    }
+
+    /* Decorative top arch */
+    #page-landing::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--deep), var(--rose), var(--gold), var(--rose), var(--deep));
+    }
+
+    /* Soft vignette corners */
+    #page-landing::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at top left,    rgba(232,41,90,.08) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom right, rgba(232,41,90,.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* ── Bubu GIF container ── */
+    .bubu-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 28px;
+      filter: drop-shadow(0 8px 24px rgba(232,41,90,.25));
+      animation: float 3.5s ease-in-out infinite;
+    }
+
+    .bubu-main {
+      width: clamp(160px, 38vw, 280px);
+      height: auto;
+      display: block;
+      border-radius: 50%;
+    }
+
+    /* Glow ring */
+    .bubu-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,41,90,.15) 0%, transparent 70%);
+      animation: pulse-ring 2.5s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0) rotate(-1deg); }
+      50%      { transform: translateY(-14px) rotate(1deg); }
+    }
+
+    @keyframes pulse-ring {
+      0%,100% { transform: scale(1); opacity:.8; }
+      50%      { transform: scale(1.12); opacity:.4; }
+    }
+
+    /* ── Headline ── */
+    .headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: var(--deep);
+      line-height: 1.15;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .headline em {
+      font-style: italic;
+      color: var(--rose);
+      display: block;
+    }
+
+    /* Sparkle dots around headline */
+    .headline::before, .headline::after {
+      content: '✦';
+      position: absolute;
+      top: 0;
+      font-size: .8rem;
+      color: var(--gold);
+      opacity: .7;
+      animation: twinkle 1.8s ease-in-out infinite alternate;
+    }
+    .headline::before { left: -20px; animation-delay: 0s; }
+    .headline::after  { right: -20px; animation-delay: .6s; }
+
+    @keyframes twinkle {
+      from { opacity:.2; transform: scale(.8); }
+      to   { opacity:1;  transform: scale(1.2); }
+    }
+
+    .sub-text {
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      font-size: clamp(.9rem, 2.5vw, 1.2rem);
+      color: #9c4060;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+    }
+
+    /* ── Yes / No buttons ── */
+    .btn-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .btn {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.25rem;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 42px;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-yes {
+      background: linear-gradient(135deg, var(--rose), var(--deep));
+      color: #fff;
+      box-shadow: 0 6px 24px rgba(232,41,90,.4);
+    }
+
+    .btn-yes::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,.2), transparent);
+      border-radius: inherit;
+    }
+
+    .btn-yes:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 10px 32px rgba(232,41,90,.55);
+    }
+
+    .btn-yes:active { transform: scale(.97); }
+
+    .btn-no {
+      background: #fff;
+      color: var(--deep);
+      border: 2px solid var(--blush);
+      box-shadow: 0 4px 14px rgba(0,0,0,.06);
+      position: fixed !important; /* will be overridden by JS but start normal */
+      position: relative !important;
+    }
+
+    .btn-no.runaway {
+      position: fixed !important;
+      transition: none !important;
+    }
+
+    .btn-no:not(.runaway):hover {
+      background: var(--petal);
+    }
+
+    /* ── No-click counter message ── */
+    #no-msg {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-60px);
+      background: var(--deep);
+      color: #fff;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      padding: 10px 24px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.2);
+      z-index: 9999;
+      transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    #no-msg.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ══════════════════════════════════════════════════════
+       YES PAGE
+    ══════════════════════════════════════════════════════ */
+    #page-yes {
+      display: none;
+      background: radial-gradient(ellipse 90% 90% at 50% 10%, #ffe0ea 0%, var(--cream) 65%);
+      padding: 40px 20px 60px;
+      text-align: center;
+      animation: fadeInPage .8s ease forwards;
+    }
+
+    #page-yes.active { display: flex; }
+
+    @keyframes fadeInPage {
+      from { opacity:0; transform: translateY(30px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    #page-yes::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--deep), var(--rose), var(--gold), var(--rose), var(--deep));
+    }
+
+    /* ── Couple photo frame ── */
+    .photo-frame-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 32px;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .photo-frame {
+      width: clamp(200px, 55vw, 340px);
+      height: clamp(200px, 55vw, 340px);
+      border-radius: 50%;
+      object-fit: cover;
+      border: 6px solid #fff;
+      box-shadow:
+        0 0 0 3px var(--blush),
+        0 0 0 9px rgba(232,41,90,.12),
+        0 16px 48px rgba(139,26,58,.25);
+      display: block;
+    }
+
+    /* Decorative ring */
+    .photo-frame-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      border: 2px dashed var(--blush);
+      animation: spin 18s linear infinite;
+    }
+
+    /* Heart badges around photo */
+    .photo-frame-wrap::after {
+      content: '♥';
+      position: absolute;
+      top: -10px; right: 10px;
+      font-size: 1.5rem;
+      color: var(--rose);
+      animation: heartbeat 1.2s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes heartbeat {
+      0%,100% { transform: scale(1); }
+      50%      { transform: scale(1.3); }
+    }
+
+    /* ── Yes page text ── */
+    .yes-headline {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 3.2rem);
+      color: var(--deep);
+      margin-bottom: 10px;
+    }
+
+    .yes-headline span {
+      color: var(--rose);
+      font-style: italic;
+    }
+
+    .yes-sub {
+      font-weight: 300;
+      color: #9c4060;
+      font-size: clamp(.9rem, 2.5vw, 1.15rem);
+      letter-spacing: .06em;
+      max-width: 380px;
+      margin: 0 auto 28px;
+      line-height: 1.7;
+    }
+
+    /* ── Dancing Bubu ── */
+    .dancing-bubu {
+      width: clamp(80px, 20vw, 130px);
+      height: auto;
+      animation: dance 0.7s ease-in-out infinite alternate;
+      filter: drop-shadow(0 4px 12px rgba(232,41,90,.3));
+      margin-top: 8px;
+    }
+
+    @keyframes dance {
+      from { transform: rotate(-8deg) translateY(0); }
+      to   { transform: rotate(8deg) translateY(-8px); }
+    }
+
+    /* ── Decorative hearts ── */
+    .floating-hearts-deco {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .deco-heart {
+      position: absolute;
+      font-size: 1.4rem;
+      opacity: 0;
+      animation: floatHeart var(--dur) ease-in var(--delay) infinite;
+      left: var(--x);
+      bottom: -10%;
+    }
+
+    @keyframes floatHeart {
+      0%   { opacity:0; transform: translateY(0) scale(.7) rotate(var(--rot)); }
+      15%  { opacity:.7; }
+      85%  { opacity:.4; }
+      100% { opacity:0; transform: translateY(-110vh) scale(1.1) rotate(calc(var(--rot) + 30deg)); }
+    }
+
+    /* ── Confetti ── */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      top: -20px;
+      animation: confettiFall var(--cdur) linear var(--cdelay) forwards;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    @keyframes confettiFall {
+      0%   { transform: translateY(0)    rotate(0deg)    translateX(0); opacity:1; }
+      100% { transform: translateY(100vh) rotate(720deg) translateX(var(--cx)); opacity:0; }
+    }
+
+    /* ─── ORNAMENTAL DIVIDER ──────────────────────────── */
+    .ornament {
+      color: var(--rose);
+      font-size: .85rem;
+      letter-spacing: .5em;
+      margin: 18px auto;
+      display: block;
+      opacity: .55;
+    }
+
+    /* ─── RESPONSIVE ──────────────────────────────────── */
+    @media (max-width: 480px) {
+      .btn { padding: 12px 30px; font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     🎵 BACKGROUND MUSIC — EDIT HERE
+     Replace bg-music.mp3 with a different file name if needed.
+     File lives in: audio/bg-music.mp3
+     ============================================================ -->
+<audio id="bg-audio" loop preload="auto">
+  <source src="audio/bg-music.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Music toggle button (bottom-right corner) -->
+<button id="music-btn" onclick="toggleMusic()" title="Toggle music">🔇</button>
+
+<!-- Falling rose petals -->
+<canvas id="petal-canvas"></canvas>
+
+<!-- No-click toast -->
+<div id="no-msg">Please… 🥺</div>
+
+<!-- ══════════ LANDING PAGE ══════════ -->
+<section class="page" id="page-landing">
+
+  <!-- Decorative floating hearts (CSS only) -->
+  <div class="floating-hearts-deco" id="hearts-deco"></div>
+
+  <!-- Bubu holding flower GIF -->
+  <div class="bubu-wrap" id="bubu-main-wrap">
+    <!-- ============================================================
+         🐻 BUBU IMAGE — EDIT HERE
+         Initial (happy) image: images/bubu-dudu/bubu_flower.gif
+         Crying images are picked randomly from: images/dudu_crying/
+         To change the happy Bubu → update src below AND BUBU_HAPPY in the JS section
+         ============================================================ -->
+    <img
+      id="bubu-img"
+      class="bubu-main"
+      src="images/bubu-dudu/bubu_flower.gif"
+      alt="Bubu holding flower"
+      onerror="this.src='https://via.placeholder.com/260x260/fde8ef/e8295a?text=🐻+Bubu'"
+    />
+  </div>
+
+  <span class="ornament">✦ &nbsp; ✦ &nbsp; ✦</span>
+
+  <h1 class="headline">
+    Will you be
+    <em>my Valentine?</em>
+  </h1>
+  <p class="sub-text">Press Yes or No to say Yes</p>
+
+  <div class="btn-row" id="btn-row">
+    <button class="btn btn-yes" id="btn-yes" onclick="handleYes()">
+      Yes, always 💕
+    </button>
+    <button class="btn btn-no" id="btn-no">
+      No 🙅
+    </button>
+  </div>
+
+</section>
+
+<!-- ══════════ YES PAGE ══════════ -->
+<section class="page" id="page-yes">
+
+  <div class="floating-hearts-deco" id="yes-hearts"></div>
+
+  <!-- ============================================================
+       📸 COUPLE PHOTO — EDIT HERE
+       Replace the src below with your actual photo filename.
+       Photo should be placed in: images/her-photos/
+       Example: src="images/her-photos/dippi.jpg"
+       ============================================================ -->
+  <div class="photo-frame-wrap">
+    <img
+      class="photo-frame"
+      src="images/her-photos/dippi.jpg"
+      alt="Us together"
+      onerror="this.src='https://via.placeholder.com/340x340/fde8ef/e8295a?text=💕+Our+Photo'"
+    />
+  </div>
+
+  <h2 class="yes-headline">
+    Thank you for being<br>
+    <span>my Valentine</span> 💖
+  </h2>
+
+  <span class="ornament">✦ &nbsp; ✦ &nbsp; ✦</span>
+
+  <p class="yes-sub">
+
+    Happy Valentine’s Day, my lovey-dovey Blue-chan 🌹
+    One day we’ll roam the world together, chasing dreams, collecting memories, and achieving everything we’ve ever wished for — side by side. Until then, I’m grateful for every moment, every smile, and every little piece of us that makes this journey special. ❤️
+    
+  </p>
+
+  <!-- ============================================================
+       🐻💃 DANCING BUBU (Yes page) — EDIT HERE
+       Replace src with whichever happy/dancing Bubu GIF you want.
+       File should be in: images/bubu-dudu/
+       ============================================================ -->
+  <img
+    class="dancing-bubu"
+    src="images/bubu-dudu/bubu_dudu_hug.gif"
+    alt="Dancing Bubu"
+    onerror="this.src='https://via.placeholder.com/130x130/fde8ef/e8295a?text=🐻💃'"
+  />
+
+</section>
+
+<script>
+  /* ══════════════════════════════════════════════════
+     ROSE PETAL CANVAS
+  ══════════════════════════════════════════════════ */
+  const canvas = document.getElementById('petal-canvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+
+  const PETAL_COUNT = 38;
+  const petals = [];
+
+  const petalColors = [
+    'rgba(232,41,90,.55)',
+    'rgba(247,197,208,.7)',
+    'rgba(253,232,239,.8)',
+    'rgba(201,135,90,.45)',
+    'rgba(255,180,200,.6)',
+  ];
+
+  function randomBetween(a, b) { return a + Math.random() * (b - a); }
+
+  for (let i = 0; i < PETAL_COUNT; i++) {
+    petals.push({
+      x:       randomBetween(0, window.innerWidth),
+      y:       randomBetween(-200, -10),
+      w:       randomBetween(8, 22),
+      h:       randomBetween(5, 14),
+      color:   petalColors[Math.floor(Math.random() * petalColors.length)],
+      speed:   randomBetween(0.6, 2.2),
+      drift:   randomBetween(-0.6, 0.6),
+      rot:     randomBetween(0, Math.PI * 2),
+      rotSpeed:randomBetween(-0.025, 0.025),
+      swing:   randomBetween(0.3, 0.9),
+      swingX:  randomBetween(0, Math.PI * 2),
+    });
+  }
+
+  function drawPetal(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, p.w / 2, p.h / 2, 0, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animatePetals() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    petals.forEach(p => {
+      p.y        += p.speed;
+      p.swingX   += 0.018;
+      p.x        += Math.sin(p.swingX) * p.swing + p.drift;
+      p.rot      += p.rotSpeed;
+
+      if (p.y > canvas.height + 30) {
+        p.y = randomBetween(-60, -10);
+        p.x = randomBetween(0, canvas.width);
+      }
+
+      drawPetal(p);
+    });
+    requestAnimationFrame(animatePetals);
+  }
+  animatePetals();
+
+  /* ══════════════════════════════════════════════════
+     CSS FLOATING HEARTS (landing + yes page)
+  ══════════════════════════════════════════════════ */
+  function spawnCSSHearts(containerId, count) {
+    const container = document.getElementById(containerId);
+    const symbols   = ['♥', '♡', '❤', '💕', '💗', '🌸'];
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('span');
+      el.className = 'deco-heart';
+      el.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+      el.style.setProperty('--x',     `${Math.random() * 100}%`);
+      el.style.setProperty('--dur',   `${4 + Math.random() * 8}s`);
+      el.style.setProperty('--delay', `${Math.random() * 8}s`);
+      el.style.setProperty('--rot',   `${-30 + Math.random() * 60}deg`);
+      container.appendChild(el);
+    }
+  }
+  spawnCSSHearts('hearts-deco', 22);
+  spawnCSSHearts('yes-hearts',  28);
+
+  /* ══════════════════════════════════════════════════
+     NO BUTTON — RUN AWAY LOGIC
+  ══════════════════════════════════════════════════ */
+  const btnNo    = document.getElementById('btn-no');
+  const bubuImg  = document.getElementById('bubu-img');
+  const noMsg    = document.getElementById('no-msg');
+
+  let noAttempts = 0;
+  let msgTimer;
+
+  const noMessages = [
+    "Please… 🥺",
+    "Come on, you know you want to 💕",
+    "Don't do this to me 😢",
+    "My heart is breaking… 💔",
+    "Bubu is crying because of you 😭",
+    "Last chance… 👀",
+    "Ok fine… I'll cry then 😭",
+  ];
+
+  /* ══════════════════════════════════════════════════
+     🐻 BUBU IMAGE PATHS — EDIT HERE
+     BUBU_HAPPY   → the landing page sticker (bubu holding flower)
+     BUBU_CRYING  → array of all GIFs in your dudu_crying folder
+                    Add/remove filenames here as you add more crying GIFs
+  ══════════════════════════════════════════════════ */
+  const BUBU_HAPPY = 'images/bubu-dudu/bubu_flower.gif';
+
+  const BUBU_CRYING_IMAGES = [
+    'images/dudu_crying/bubu_crying_1.gif',
+    'images/dudu_crying/bubu_crying_2.gif',
+    'images/dudu_crying/bubu_crying_3.gif',
+  ];
+
+  function getRandomCryingImg() {
+    const i = Math.floor(Math.random() * BUBU_CRYING_IMAGES.length);
+    return BUBU_CRYING_IMAGES[i];
+  }
+
+  function showNoMsg(text) {
+    noMsg.textContent = text;
+    noMsg.classList.add('show');
+    clearTimeout(msgTimer);
+    msgTimer = setTimeout(() => noMsg.classList.remove('show'), 2200);
+  }
+
+  function moveNoButton() {
+    const margin = 20;
+    const bw = btnNo.offsetWidth  || 120;
+    const bh = btnNo.offsetHeight || 50;
+    const maxX = window.innerWidth  - bw - margin;
+    const maxY = window.innerHeight - bh - margin;
+
+    const newX = margin + Math.random() * maxX;
+    const newY = margin + Math.random() * maxY;
+
+    btnNo.classList.add('runaway');
+    btnNo.style.left = newX + 'px';
+    btnNo.style.top  = newY + 'px';
+  }
+
+  function onNoHover() {
+    noAttempts++;
+
+    // Switch to a random crying Bubu from dudu_crying folder
+    bubuImg.src = getRandomCryingImg();
+
+    // Show sad message
+    const msgIndex = Math.min(noAttempts - 1, noMessages.length - 1);
+    showNoMsg(noMessages[msgIndex]);
+
+    // Move the button away
+    moveNoButton();
+
+    // After many attempts — just say yes automatically
+    if (noAttempts >= 8) {
+      setTimeout(() => {
+        showNoMsg("I knew you'd say yes! 💕");
+        setTimeout(handleYes, 900);
+      }, 400);
+    }
+  }
+
+  // Desktop — move on mouseenter (before they can click)
+  btnNo.addEventListener('mouseenter', onNoHover);
+
+  // Mobile — move on touchstart (before tap registers as click)
+  btnNo.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    onNoHover();
+  }, { passive: false });
+
+  /* ══════════════════════════════════════════════════
+     YES BUTTON
+  ══════════════════════════════════════════════════ */
+  function handleYes() {
+    // Hide landing, show yes page
+    document.getElementById('page-landing').style.display = 'none';
+    const yesPage = document.getElementById('page-yes');
+    yesPage.classList.add('active');
+
+    // Trigger confetti
+    launchConfetti();
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* ══════════════════════════════════════════════════
+     CONFETTI
+  ══════════════════════════════════════════════════ */
+  const confettiColors = [
+    '#e8295a','#f7c5d0','#c9875a','#fff','#ffd6e4',
+    '#8b1a3a','#ffadc5','#ffe0ea',
+  ];
+
+  function launchConfetti() {
+    const count = 140;
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left            = Math.random() * 100 + 'vw';
+      el.style.background      = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+      el.style.width           = (6 + Math.random() * 10) + 'px';
+      el.style.height          = (6 + Math.random() * 10) + 'px';
+      el.style.borderRadius    = Math.random() > .5 ? '50%' : '2px';
+      el.style.setProperty('--cdur',   (1.5 + Math.random() * 2.5) + 's');
+      el.style.setProperty('--cdelay', (Math.random() * .8) + 's');
+      el.style.setProperty('--cx',     (-120 + Math.random() * 240) + 'px');
+      document.body.appendChild(el);
+      el.addEventListener('animationend', () => el.remove());
+    }
+  }
+
+  /* ══════════════════════════════════════════════════
+     RESTORE HAPPY BUBU when cursor leaves No button
+  ══════════════════════════════════════════════════ */
+  btnNo.addEventListener('mouseleave', () => {
+    setTimeout(() => {
+      if (!document.getElementById('page-yes').classList.contains('active')) {
+        bubuImg.src = BUBU_HAPPY;
+      }
+    }, 1800);
+  });
+
+  /* ══════════════════════════════════════════════════
+     🎵 MUSIC TOGGLE — EDIT HERE
+     Auto-starts on first interaction (browser policy).
+     🔇 = muted, 🔊 = playing
+  ══════════════════════════════════════════════════ */
+  const audio    = document.getElementById('bg-audio');
+  const musicBtn = document.getElementById('music-btn');
+  let   musicOn  = false;
+
+  function toggleMusic() {
+    if (musicOn) {
+      audio.pause();
+      musicBtn.textContent = '🔇';
+      musicOn = false;
+    } else {
+      audio.play();
+      musicBtn.textContent = '🔊';
+      musicOn = true;
+    }
+  }
+
+  // Auto-start on first click anywhere (browsers block true autoplay)
+  document.addEventListener('click', function startOnce() {
+    if (!musicOn) {
+      audio.play().then(() => {
+        musicBtn.textContent = '🔊';
+        musicOn = true;
+      }).catch(() => {});
+    }
+    document.removeEventListener('click', startOnce);
+  }, { once: true });
+
+</script>
+</body>
+</html>
